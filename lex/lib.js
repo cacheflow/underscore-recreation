@@ -50,26 +50,26 @@ __.each = (list, iteratee, context) => {
 
  __.linearSearch = (arr, val, indexToStartFrom) => {
   let arrIndex;
-  for(let i = indexToStartFrom || 0; i < arr.length; ++i) {
+  for(let i = indexToStartFrom || 0; i < arr.length; i++) {
      if(val == arr[i]) {
       arrIndex = i
       return arrIndex
     }
   }
+  return false
 }
 
  __.indexOf = (arr, val, isSorted) => {
+  let searchAlgo = isSorted == true ? __.binarySearch(arr, val) : __.linearSearch(arr, val, isSorted)
   if(isSorted == true) {
-    return __.binarySearch(arr, val) != undefined || false ? __.binarySearch(arr, val) : false
+    return searchAlgo != undefined || false ? searchAlgo : false
   }
-  else {
-    let numToStartFrom = isSorted
-    return __.linearSearch(arr, val, numToStartFrom) == undefined ? false : __.linearSearch(arr, val, numToStartFrom)
-  }
+  return searchAlgo == undefined ? false : searchAlgo
 }
 
 __.contains = (list, value, fromIndex) => {
-  return __.indexOf(list, value, fromIndex) ? true : false
+  let val = __.indexOf(list, value, fromIndex)
+  return val ? true : false
 }
  __.filter = (list, predicate, context) => {
   let funcContext = context || this
@@ -80,6 +80,16 @@ __.contains = (list, value, fromIndex) => {
     }
   }
   return newArr
+}
+
+__.every = (list, predicate, context) => {
+  let truthNum = 0;
+  for(var i = 0; i < list.length; i++) {
+      if(predicate.call(context, list[i])) {
+        truthNum++
+      }
+  }
+  return truthNum == list.length ? true : false
 }
 
  __.reject = (list, predicate, context) => {
