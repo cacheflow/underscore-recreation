@@ -2,41 +2,30 @@
 const __ = {}
 
 __.first = (arr, n) => {
-  if(typeof n == 'number' && n != undefined) {
-    return arr.slice(0, Math.max(0, n))
-  }
-  else {
-    return arr.slice(0, 1)
-  }
+  return arr.slice(0, Math.max(0, n) || 1)
 }
 
 __.last = (arr, n) => {
-  if(typeof n == 'number' && n != undefined) {
-    return arr.slice(Math.abs(n) * -1)
-  }
-  else {
-    return arr.slice(-1)
-  }
+  return arr.slice(-Math.abs(n) || -1)
 }
 
- __.each = (list, iteratee, context) => {
-  let funcContext = context || this
+__.each = (list, iteratee, context) => {
+  let copyOfList;
   if(Array.isArray(list)) {
-    for(var i = 0; i < list.length; ++i) {
-      let element = list[i]
-      iteratee.call(funcContext, element, i, list)
+    copyOfList = list.slice()
+    for(var i = 0; i < copyOfList.length; ++i) {
+      iteratee.call(context || this, list[i], i, list)
     }
   }
   else {
-    let copyOfListObj = JSON.parse(JSON.stringify(list))
-    for(var key in copyOfListObj) {
-      let listVal = copyOfListObj[key]
-      iteratee.call(funcContext, listVal, key, copyOfListObj)
+    copyOfList = {}
+    for(var key in list) {
+      copyOfList[key] = list[key]
+      iteratee.call(context || this, copyOfList[key], key, list)
     }
   }
   return list
 }
-
 
  __.binarySearch = (arr, val) => {
   let beginning = 0;
@@ -79,6 +68,9 @@ __.last = (arr, n) => {
   }
 }
 
+__.contains = (list, value, fromIndex) => {
+  return __.indexOf(list, value, fromIndex) ? true : false
+}
  __.filter = (list, predicate, context) => {
   let funcContext = context || this
   let newArr = []
