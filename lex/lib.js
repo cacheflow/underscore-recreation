@@ -92,6 +92,16 @@ __.every = (list, predicate, context) => {
   return truthNum == list.length ? true : false
 }
 
+__.some = (list, predicate, context) => {
+  let truthNum = 0;
+  for(var i = 0; i < list.length; i++) {
+      if(predicate.call(context, list[i])) {
+        truthNum++
+      }
+  }
+  return truthNum > 0 ? true : false
+}
+
  __.reject = (list, predicate, context) => {
   let funcContext = context || this
   let newArr = []
