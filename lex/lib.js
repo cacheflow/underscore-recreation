@@ -102,29 +102,41 @@ __.some = (list, predicate, context) => {
   return truthNum > 0 ? true : false
 }
 
+__.shuffle = (list) => {
+  let currentIndex = list.length
+  let listCopy = list.slice(0)
+  let tempVal;
+  let randomIndex
+  while(0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex)
+    currentIndex -= 1
+    tempVal = listCopy[currentIndex]
+    listCopy[currentIndex] = listCopy[randomIndex]
+    listCopy[randomIndex] = tempVal
+  }
+  return listCopy
+}
+
  __.reject = (list, predicate, context) => {
   let funcContext = context || this
   let newArr = []
-  for(var i = 0; i < list.length; i++) {
-    if(!predicate.call(context, list[i])) {
-      newArr = newArr.concat(list[i])
-    }
-  }
-  return newArr
+  return __.filter(list, (val) => {
+    return !predicate(val)
+  })
 }
 
 
 
  __.uniq = (arr, isSorted, iteratee) => {
-  let arrOfDuplicates = {}
+  let obj = {}
   let results = []
-  for(var i = 0; i < arr.length; ++i) {
-    if(!arrOfDuplicates.hasOwnProperty([arr[i]])) {
-      arrOfDuplicates[i] = true
-      results.push([i])
+  for(var i = 0; i < arr.length; i++) {
+    if(!obj.hasOwnProperty(arr[i])) {
+      obj[arr[i]] = true
+      results.push(arr[i])
     }
   }
-  return results
+  return results.concat.apply([], results)
 }
 
 module.exports = __
