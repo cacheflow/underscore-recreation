@@ -218,6 +218,28 @@ __.shuffle = (list) => {
   })
 }
 
+__.extend = function(destionationObj, sourceObj)  {
+  delete arguments['0']
+  const recurse = (obj) => {
+    __.each(obj, ((element, key, list) => {
+      if(__.isObject(element, element.constructor)) {
+        destionationObj[key] = element || {}
+        recurse(element)
+      }
+      else {
+        destionationObj[element] = list[key]
+      }
+    }))
+    return destionationObj
+  }
+  return recurse(arguments)
+}
+
+__.isObject = (prop, propWithConstructor) => {
+  return prop && propWithConstructor === Object ? true : false
+}
+
+
 
  __.uniq = (arr, isSorted, iteratee) => {
   let obj = {}
