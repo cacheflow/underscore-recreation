@@ -2,11 +2,11 @@
 const __ = {}
 
 __.first = (arr, n) => {
-  return arr.slice(0, Math.max(0, n) || 1)
+  return arr.slice.call(0, Math.max(0, n) || 1)
 }
 
 __.last = (arr, n) => {
-  return arr.slice(-Math.abs(n) || -1)
+  return arr.slice.call(-Math.abs(n) || -1)
 }
 
 __.each = (list, iteratee, context) => {
@@ -21,10 +21,10 @@ __.each = (list, iteratee, context) => {
     copyOfList = {}
     for(var key in list) {
       copyOfList[key] = list[key]
-      iteratee.call(context || this, copyOfList[key], key, list)
+      iteratee.call(context || this, copyOfList[key], key, copyOfList)
     }
   }
-  return list
+  return copyOfList
 }
 
  __.binarySearch = (arr, val) => {
@@ -46,6 +46,12 @@ __.each = (list, iteratee, context) => {
       }
     }
   }
+}
+
+__.pluck = (list, propertyName) => {
+  return __.map(list, (element) => {
+    return element[propertyName]
+  })
 }
 
  __.linearSearch = (arr, val, indexToStartFrom) => {
@@ -71,42 +77,129 @@ __.contains = (list, value, fromIndex) => {
   let val = __.indexOf(list, value, fromIndex)
   return val ? true : false
 }
+
  __.filter = (list, predicate, context) => {
-  let funcContext = context || this
   let newArr = []
-  for(var i = 0; i < list.length; i++) {
-    if(predicate.call(context, list[i])) {
-      newArr = newArr.concat(list[i])
+  __.map(list, (element, key, list) => {
+    if(predicate.call(context || this, element, key, list)) {
+      newArr = newArr.concat(element)
     }
-  }
+  })
   return newArr
+}
+
+__.map = (list, iteratee, context) => {
+  let results = []
+  __.each(list, (value, key, collection) => {
+    results = results.concat(iteratee.call(context || this, value, key, collection))
+  })
+  return results
 }
 
 __.every = (list, predicate, context) => {
   let truthNum = 0;
-  for(var i = 0; i < list.length; i++) {
-      if(predicate.call(context, list[i])) {
-        truthNum++
-      }
-  }
-  return truthNum == list.length ? true : false
+  __.each(list, ((element) => {
+    if(predicate.call(context, list[element])) {
+      truthNum++
+    }
+  }))
+  return truthNum === list.length ? true : false
 }
 
 __.some = (list, predicate, context) => {
-  let truthNum = 0;
-  for(var i = 0; i < list.length; i++) {
-      if(predicate.call(context, list[i])) {
-        truthNum++
-      }
-  }
-  return truthNum > 0 ? true : false
+  return !__.every(list, (i) => {
+    return !predicate.call(context || this, i)
+  })
 }
 
+__.reduce = (list, iteratee, memo, context) => {
+  let accumulatedResult;
+  memo === undefined ? accumulatedResult = list[0] : accumulatedResult = memo
+  __.each(list, ((value, key, list) => {
+    accumulatedResult = iteratee.call(context || this, accumulatedResult, value)
+  }))
+  return accumulatedResult
+}
+
+__.flatten = (arr) => {
+  let newArr = []
+  __.each(arr, ((val) => {
+    newArr = newArr.concat(Array.isArray(val) ? __.flatten(val) : val)
+  }))
+  return newArr
+}
+
+__.invoke = function(list, methodName, args) {
+  if(__.hasOwnProperty(methodName)) {
+    return __.map(list, function(element) {
+      return __[methodName](element)
+    })
+  }
+}
+
+__.difference = function(array, others)  {
+  let cacheObj = {}
+  let results = []
+  let argumentsLength = arguments.length
+  while(argumentsLength > 0) {
+    if(argumentsLength > 0) {
+      __.each(arguments[argumentsLength], ((element, key, list) => {
+        cacheObj[element] = element
+      }))
+    }
+    else {
+      __.each(arguments[argumentsLength], ((element, key, list) => {
+        return !cacheObj.hasOwnProperty(element) ? results.push(element) : null
+      }))
+    }
+    argumentsLength -= 1
+  }
+  return results
+}
+
+__.zip = function() {
+    let argumentsLength = arguments.length;
+    let i = 0;
+    let cacheObj = {}
+    let results = []
+    Object.keys(arguments).map(key => cacheObj[key] = [])
+    while(i < arguments.length) {
+      __.each(arguments[i], ((element, key, list) => {
+        if(cacheObj.hasOwnProperty(key)) {
+          cacheObj[key] = cacheObj[key].concat(element)
+        }
+      }))
+      i += 1
+    }
+    __.map(cacheObj, (element, key, list) => results.push(element))
+    return results
+}
+
+__.intersection = function(arrays)  {
+  var cacheObj = {}
+  let results = []
+  let argumentsLength = arguments.length;
+  while(0 < argumentsLength) {
+    argumentsLength -= 1
+    __.each(arguments[argumentsLength], (element) => {
+      if(!cacheObj.hasOwnProperty(element)) {
+        cacheObj[element] = 1
+      }
+      else {
+        cacheObj[element] = cacheObj[element] + 1
+      }
+    })
+  }
+  __.map(cacheObj, ((element, key, list) => {
+    return element > 1 ? results = results.concat(parseInt(key)) : null
+  }))
+  return results
+}
 __.shuffle = (list) => {
-  let currentIndex = list.length
   let listCopy = list.slice(0)
+  let currentIndex = listCopy.length
   let tempVal;
-  let randomIndex
+  let randomIndex;
   while(0 !== currentIndex) {
     randomIndex = Math.floor(Math.random() * currentIndex)
     currentIndex -= 1
@@ -126,16 +219,15 @@ __.shuffle = (list) => {
 }
 
 
-
  __.uniq = (arr, isSorted, iteratee) => {
   let obj = {}
   let results = []
-  for(var i = 0; i < arr.length; i++) {
-    if(!obj.hasOwnProperty(arr[i])) {
-      obj[arr[i]] = true
-      results.push(arr[i])
+  __.each(arr, (val) => {
+    if(!obj.hasOwnProperty(arr[val])) {
+      obj[arr[val]] = true
+      results.push(arr[val])
     }
-  }
+  })
   return results.concat.apply([], results)
 }
 
