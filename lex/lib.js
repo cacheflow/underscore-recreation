@@ -235,8 +235,30 @@ __.extend = function(destionationObj, sourceObj)  {
   return recurse(arguments)
 }
 
+
+
+__.defaults = function(destionationObj, sourceObj) {
+  let i = 1
+  const recurse = (obj) => {
+    while(i < arguments.length) {
+      __.each(obj[i], ((element, key, list) => {
+        if(!destionationObj.hasOwnProperty(key)) {
+            if(__.isObject(element, element.constructor)) {
+              destionationObj[key] = element || {}
+              recurse(element)
+            }
+            destionationObj[element] = element
+          }
+        }))
+        return destionationObj
+      }
+      i += 1
+    }
+  return recurse(arguments)
+}
+
 __.isObject = (prop, propWithConstructor) => {
-  return prop && propWithConstructor === Object ? true : false
+  return prop || propWithConstructor === Object || typeof prop === Object ? true : false
 }
 
 
