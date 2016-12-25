@@ -2,11 +2,11 @@
 const __ = {}
 
 __.first = (arr, n) => {
-  return arr.slice.call(0, Math.max(0, n) || 1)
+  return arr.slice(0, Math.max(0, n) || 1)
 }
 
 __.last = (arr, n) => {
-  return arr.slice.call(-Math.abs(n) || -1)
+  return arr.slice(-Math.abs(n) || -1)
 }
 
 __.each = (list, iteratee, context) => {
@@ -238,27 +238,26 @@ __.extend = function(destionationObj, sourceObj)  {
 
 
 __.defaults = function(destionationObj, sourceObj) {
-  let i = 1
-  const recurse = (obj) => {
-    while(i < arguments.length) {
-      __.each(obj[i], ((element, key, list) => {
-        if(!destionationObj.hasOwnProperty(key)) {
-            if(__.isObject(element, element.constructor)) {
-              destionationObj[key] = element || {}
-              recurse(element)
-            }
-            destionationObj[element] = element
-          }
-        }))
-        return destionationObj
+  delete arguments['0']
+  for(var i = 0; i < arguments.length; i++) {
+    for(var prop in arguments[i]) {
+      if(!destionationObj.hasOwnProperty(prop)) {
+        if(__.isObject(arguments[i][prop], arguments[i].constructor)) {
+          destionationObj[prop] = arguments[i][prop] || {}
+        }
+        destionationObj[prop] = arguments[i][prop]
       }
-      i += 1
     }
-  return recurse(arguments)
+  }
+  return destionationObj
 }
 
 __.isObject = (prop, propWithConstructor) => {
   return prop || propWithConstructor === Object || typeof prop === Object ? true : false
+}
+
+__.delay = (func, waitTime, args) => {
+  setTimeout(() => func(args), waitTime)
 }
 
 

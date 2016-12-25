@@ -1,0 +1,23 @@
+{
+  "name": "underscore-recreation",
+  "version": "1.0.0",
+  "description": "![Yaass](https://67.media.tumblr.com/90e05030de10beaae8694c318d430082/tumblr_ndhv9ueHDU1ql5yr7o1_500.gif)",
+  "main": "example.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cacheflow/underscore-recreation.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cacheflow/underscore-recreation/issues"
+  },
+  "homepage": "https://github.com/cacheflow/underscore-recreation#readme",
+  "dependencies": {
+    "expect": "^1.20.2",
+    "mocha": "^3.2.0"
+  }
+}
