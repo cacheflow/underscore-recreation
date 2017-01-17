@@ -1,4 +1,4 @@
-'use strict'
+  'use strict'
 const __ = {}
 
 __.first = (arr, n) => {
@@ -7,6 +7,54 @@ __.first = (arr, n) => {
 
 __.last = (arr, n) => {
   return arr.slice(-Math.abs(n) || -1)
+}
+
+__.debounce = (func, wait, immediate) => {
+  let timeout;
+  return function() {
+    var args = arguments;
+    let later = function() {
+      var context = this;
+      timeout = null
+      if(!immediate) {
+        func.apply(this, args)
+      }
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait || 1000)
+    if(!later && immediate) {
+      func.apply(context, args)
+    }
+  }
+}
+
+__.throttle = (func, limit) => {
+  var pauseExecution = false;
+  return function() {
+    var args = arguments;
+    if(!pauseExecution) {
+      func.apply(this. args)
+      pauseExecution = true
+      setTimeout(() => {
+        pauseExecution = false
+      }, limit || 500)
+    }
+  }
+}
+
+__.memoize = function(func, depsFunc) {
+  var cache = {}
+  var key = JSON.stringify(depsFunc || "", arguments)
+  return function() {
+    if(cache.hasOwnProperty(key)) {
+      return cache[key]
+    }
+    else {
+      var val = func.apply(this, arguments)
+      cache[key] = val
+      return val
+    }
+  }
 }
 
 __.each = (list, iteratee, context) => {
@@ -137,6 +185,17 @@ __.invoke = function(list, methodName, args) {
   }
 }
 
+__.once = function(func) {
+    let called = false
+    let calledResult;
+    let argumentsWithoutCallback = __.reject(arguments, (element, key, index) => typeof element == "function")
+    if(!called) {
+      calledResult = argumentsWithoutCallback.length > 0 ? func(argumentsWithoutCallback[0]) : func()
+      called = true
+    }
+    return calledResult
+}
+
 __.difference = function(array, others)  {
   let cacheObj = {}
   let results = []
@@ -218,34 +277,35 @@ __.shuffle = (list) => {
   })
 }
 
-__.extend = function(destionationObj, sourceObj)  {
-  delete arguments['0']
-  const recurse = (obj) => {
-    __.each(obj, ((element, key, list) => {
-      if(__.isObject(element, element.constructor)) {
-        destionationObj[key] = element || {}
-        recurse(element)
-      }
-      else {
-        destionationObj[element] = list[key]
-      }
-    }))
-    return destionationObj
-  }
-  return recurse(arguments)
+__.rejectProperty = (obj, propToReject) => {
+  let results = []
+  __.each(obj, ((element, key, list) => {
+    if(list.hasOwnProperty(propToReject) && key != propToReject) {
+      results.push(element)
+    }
+  }))
+  return results
 }
 
-
+__.extend = function(destionationObj, sourceObj)  {
+  let argumentsWithoutDestinationObj = __.rejectProperty(arguments, "0")
+  for(var i = 0; i < argumentsWithoutDestinationObj.length; i++) {
+    for(var key in argumentsWithoutDestinationObj[i]) {
+      destionationObj[key] = argumentsWithoutDestinationObj[i][key]
+    }
+  }
+  return destionationObj
+}
 
 __.defaults = function(destionationObj, sourceObj) {
-  delete arguments['0']
-  for(var i = 0; i < arguments.length; i++) {
-    for(var prop in arguments[i]) {
+  let argumentsWithoutDestinationObj = __.rejectProperty(arguments, "0")
+  for(var i = 0; i < argumentsWithoutDestinationObj.length; i++) {
+    for(var prop in argumentsWithoutDestinationObj[i]) {
       if(!destionationObj.hasOwnProperty(prop)) {
-        if(__.isObject(arguments[i][prop], arguments[i].constructor)) {
-          destionationObj[prop] = arguments[i][prop] || {}
+        if(__.isObject(argumentsWithoutDestinationObj[i][prop], argumentsWithoutDestinationObj[i].constructor)) {
+          destionationObj[prop] = argumentsWithoutDestinationObj[i][prop] || {}
         }
-        destionationObj[prop] = arguments[i][prop]
+        destionationObj[prop] = argumentsWithoutDestinationObj[i][prop]
       }
     }
   }
@@ -259,8 +319,6 @@ __.isObject = (prop, propWithConstructor) => {
 __.delay = (func, waitTime, args) => {
   setTimeout(() => func(args), waitTime)
 }
-
-
 
  __.uniq = (arr, isSorted, iteratee) => {
   let obj = {}
