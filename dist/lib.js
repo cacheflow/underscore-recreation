@@ -122,7 +122,7 @@ __.pluck = (list, propertyName) => {
 }
 
 __.contains = (list, value, fromIndex) => {
-  let val = __.indexOf(list, value, fromIndex)
+  let val = __.indexOf(list, value, 0)
   return val ? true : false
 }
 
@@ -147,13 +147,12 @@ __.map = (list, iteratee, context) => {
 __.every = (list, predicate, context) => {
   let truthNum = 0;
   __.each(list, ((element) => {
-    if(predicate.call(context, list[element])) {
+    if(predicate.call(context || this, element)) {
       truthNum++
     }
   }))
   return truthNum === list.length ? true : false
 }
-
 __.some = (list, predicate, context) => {
   return !__.every(list, (i) => {
     return !predicate.call(context || this, i)
@@ -197,23 +196,24 @@ __.once = function(func) {
 }
 
 __.difference = function(array, others)  {
-  let cacheObj = {}
-  let results = []
-  let argumentsLength = arguments.length
-  while(argumentsLength > 0) {
-    if(argumentsLength > 0) {
-      __.each(arguments[argumentsLength], ((element, key, list) => {
-        cacheObj[element] = element
-      }))
-    }
-    else {
-      __.each(arguments[argumentsLength], ((element, key, list) => {
-        return !cacheObj.hasOwnProperty(element) ? results.push(element) : null
-      }))
-    }
-    argumentsLength -= 1
-  }
-  return results
+  let copyOfArgs = Array.prototype.slice.call(arguments);
+   let results = [];
+
+   __.each(arguments[0], ((item, key, list) => {
+     let uniqueNum = true
+     for (let i = 1; i < copyOfArgs.length; i++) {
+       for (let j = 0; j < copyOfArgs[i].length; j++) {
+         if (item === copyOfArgs[i][j]) {
+           uniqueNum = false
+         }
+       }
+     }
+     if(uniqueNum) {
+       results.push(item)
+     }
+   }))
+
+   return results;
 }
 
 __.zip = function() {
