@@ -1,7 +1,7 @@
 ![Yaass](https://67.media.tumblr.com/90e05030de10beaae8694c318d430082/tumblr_ndhv9ueHDU1ql5yr7o1_500.gif)
 
 #Underscore Recreation
-This is a project by me and [Machiko](https://github.com/machikoyasuda) to become better at vanilla Javascript by implementing functions from Underscore's library.
+I thought it would be fun to rewrite some of the most popular functions from Underscore.
 
 <b><u>Misc</u></b>
 <ul>
@@ -50,6 +50,6 @@ This is a project by me and [Machiko](https://github.com/machikoyasuda) to becom
 <b> <u> How To Run <u> </b>
   <ul>
     <li> Clone the repo </li>
-    <li> Go to example.js in the root folder and run it with <b> node example.js </b> to see the examples </li>
     <li> You can run any of the functions within <b> lex/lib.js </b> by prepending them with a double underscore namespace <b> __.functionName </b> </li>
+    <li> There are also a few tests within test.js to ensure some of the functions actually work </li>
   </ul>
